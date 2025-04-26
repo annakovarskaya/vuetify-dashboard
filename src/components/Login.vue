@@ -5,7 +5,7 @@
         <v-img
           class="mx-auto my-6"
           max-width="228"
-          src="https://cdn.vuetifyjs.com/docs/images/logos/vuetify-logo-v3-slim-text-light.svg"
+          src="@/assets/logo.png"
         ></v-img>
 
         <v-card
@@ -18,9 +18,10 @@
 
           <v-text-field
             density="compact"
-            placeholder="Email address"
-            prepend-inner-icon="mdi-email-outline"
+            placeholder="Enter your name"
+            prepend-inner-icon="mdi-account-outline"
             variant="outlined"
+            v-model="login"
           ></v-text-field>
 
           <div
@@ -36,6 +37,7 @@
             placeholder="Enter your password"
             prepend-inner-icon="mdi-lock-outline"
             variant="outlined"
+            v-model="password"
             @click:append-inner="visible = !visible"
           />
 
@@ -49,22 +51,52 @@
           >
             Log In
           </v-btn>
+
+          <v-alert
+            v-if="isShowAlert"
+            color="error"
+            icon="$error"
+            title="Wrong credentials!"
+          ></v-alert>
         </v-card>
       </v-col>
     </v-row>
   </v-container>
 </template>
 <script setup lang="ts">
+import { users } from "@/fixtures/app_fixture";
 import { RouteNames } from "@/router/routes";
-import { ref } from "vue";
+import type User from "@/types/User";
+import { computed, ref, unref, watch } from "vue";
+import type { Ref } from "vue";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
 
+// refs
 const visible = ref(false);
+const isCredentialsCorrect: Ref<boolean | null> = ref(null);
+const isShowAlert = ref(false);
+const login = ref("");
+const password = ref("");
+
+// watchers
+watch([login, password], () => {
+  isShowAlert.value = false;
+});
+
+// computed refs
 
 // Methods
 const onTryToLogin = () => {
-  router.push({ name: RouteNames.Dashboard });
+  isCredentialsCorrect.value = users.some(
+    (user: User) =>
+      user.name === unref(login) && user.password === unref(password),
+  );
+  const isCredentialsCorrectValue = unref(isCredentialsCorrect);
+  isShowAlert.value = !isCredentialsCorrectValue;
+  if (isCredentialsCorrectValue) {
+    router.push({ name: RouteNames.Dashboard });
+  }
 };
 </script>
