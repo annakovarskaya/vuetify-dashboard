@@ -1,13 +1,37 @@
 <template>
   <v-container class="fill-height">
     <v-row>
-      <v-col class="justify-center">
+      <v-col class="justify-center align-center">
+        <v-dialog
+          v-model="isShowAlert"
+          max-width="400"
+          color="warning"
+          icon="$error"
+          data-cy="error-dialog"
+        >
+          <v-card color="error">
+            <v-spacer></v-spacer>
+            <v-card-text
+              class="text-center justify-center"
+              style="margin-top: 20px"
+            >
+              Wrong credentials! Please try again.
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn
+                @click="isShowAlert = false"
+                data-cy="error-dialog-close-button"
+                >Close</v-btn
+              >
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
         <v-img
           class="mx-auto my-6"
           max-width="228"
           src="@/assets/logo.png"
         ></v-img>
-
         <v-card
           class="mx-auto pa-12 pb-8"
           elevation="8"
@@ -22,6 +46,7 @@
             prepend-inner-icon="mdi-account-outline"
             variant="outlined"
             v-model="login"
+            data-cy="user-input"
           ></v-text-field>
 
           <div
@@ -38,6 +63,7 @@
             prepend-inner-icon="mdi-lock-outline"
             variant="outlined"
             v-model="password"
+            data-cy="password-input"
             @click:append-inner="visible = !visible"
           />
 
@@ -47,17 +73,18 @@
             size="large"
             variant="tonal"
             block
+            data-cy="login-button"
             @click="onTryToLogin"
           >
             Log In
           </v-btn>
 
-          <v-alert
+          <!--v-alert
             v-if="isShowAlert"
-            color="error"
+            color="warning"
             icon="$error"
-            title="Wrong credentials!"
-          ></v-alert>
+            text="Wrong credentials! Please try again."
+          ></v-alert-->
         </v-card>
       </v-col>
     </v-row>
@@ -73,19 +100,16 @@ import { useRouter } from "vue-router";
 
 const router = useRouter();
 
-// refs
+// Refs
 const visible = ref(false);
 const isCredentialsCorrect: Ref<boolean | null> = ref(null);
 const isShowAlert = ref(false);
 const login = ref("");
 const password = ref("");
 
-// watchers
-watch([login, password], () => {
-  isShowAlert.value = false;
-});
+// Computed refs
 
-// computed refs
+// Watchers
 
 // Methods
 const onTryToLogin = () => {
