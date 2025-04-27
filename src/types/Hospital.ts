@@ -1,4 +1,4 @@
-export enum Hospital {
+enum Hospital {
   WARWICK = "WARWICK",
   LEAMINGTON = "LEAMINGTON",
 }

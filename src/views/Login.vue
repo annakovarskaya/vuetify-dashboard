@@ -86,7 +86,7 @@
   </v-container>
 </template>
 <script setup lang="ts">
-import { users } from "@/fixtures/app_fixture";
+import { users, user1Inventory, user2Inventory } from "@/fixtures/app_fixture";
 import { RouteNames } from "@/router/routes";
 import type User from "@/types/User";
 import { computed, ref, unref, watch } from "vue";
@@ -108,6 +108,8 @@ const password = ref("");
 
 // Methods
 const onTryToLogin = () => {
+  console.log(user1Inventory);
+  console.log(user2Inventory);
   isCredentialsCorrect.value = users.some(
     (user: User) =>
       user.name === unref(login) && user.password === unref(password),
