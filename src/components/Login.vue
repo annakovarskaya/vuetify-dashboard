@@ -10,7 +10,6 @@
           data-cy="error-dialog"
         >
           <v-card color="error">
-            <v-spacer></v-spacer>
             <v-card-text
               class="text-center justify-center"
               style="margin-top: 20px"
@@ -64,6 +63,7 @@
             variant="outlined"
             v-model="password"
             data-cy="password-input"
+            :data-cy-type="visible ? 'text' : 'password'"
             @click:append-inner="visible = !visible"
           />
 
@@ -78,13 +78,6 @@
           >
             Log In
           </v-btn>
-
-          <!--v-alert
-            v-if="isShowAlert"
-            color="warning"
-            icon="$error"
-            text="Wrong credentials! Please try again."
-          ></v-alert-->
         </v-card>
       </v-col>
     </v-row>
