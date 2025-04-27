@@ -59,17 +59,17 @@ prompts.
 5. &quot;There should be a dedicated page where the user can add, update, or remove
    assets from the list&quot; - not 100% clear what is meant by a dedicated page where the user
    can add, update or remove assets. it could be: we see data table with:
-   -  &quot;add&quot; button on the top of the table which takes us to:
+   a)  &quot;add&quot; button on the top of the table which takes us to:
       i. dedicated page with a form to fill and save - which is the best solution if we can
    have many columns
       i. modal  with a form to fill and save - which is the best solution if we can be sure
    we&#39;ll always have just a few coulmns (like &lt;= 10)
-   - &quot;edit&quot; and &quot;delete&quot;:
+   b) &quot;edit&quot; and &quot;delete&quot;:
       ii. could be implemented as edit and delete buttons at each table row, which is the
    best solution if we can delete and edit only 1 by 1
       ii. selection checkbox at each row and edit and delete buttons on the top of the table,
    which is the best solution if we consider bulk delete/edit
-   - &quot;edit&quot; will take us to:
+   c) &quot;edit&quot; will take us to:
       iii. dedicated page with filled form to update and save - which is the best solution if
    we can have many columns
       iii. modal  with a filled form to fill and save - which is the best solution if we can be
