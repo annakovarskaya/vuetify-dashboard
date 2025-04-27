@@ -4,27 +4,27 @@ Task is to create a hospital inventory management app using Vue, using an OOP ap
 
 ## Requirements:
 
-● Make a simple login page. This does not need to connect to any backend, but should
+- Make a simple login page. This does not need to connect to any backend, but should
 accept usernames from 2 users you have fixtures for, representing clinicians at 2
 different hospitals
-● Based on the user, render a hospital inventory list as a table - product name, item
+- Based on the user, render a hospital inventory list as a table - product name, item
 number, manufacturer, category, quantity. Assume that each hospital can have
 thousands of items
-● Make this list configurable per hospital. Each hospital may require different information
+- Make this list configurable per hospital. Each hospital may require different information
 about its assets. For example, one of the hospitals wants additionally to see the product
 expiry date and price
-● Provide sorting and filtering options for each displayed column in this list
-● There should be a dedicated page where the user can add, update, or remove assets
+- Provide sorting and filtering options for each displayed column in this list
+- There should be a dedicated page where the user can add, update, or remove assets
 from the list
-● Provide test coverage for your app
+- Provide test coverage for your app
 
 ## 💿 The ideal implementation will demonstrate:
 
-● Strong frontend architecture
-● Use of object-orientation
-● Good UX / UI
-● Strong test coverage - use whatever types of test automation you want
-● An approach to commenting that you can justify (this could be lots of comments, no
+- Strong frontend architecture
+- Use of object-orientation
+- Good UX / UI
+- Strong test coverage - use whatever types of test automation you want
+- An approach to commenting that you can justify (this could be lots of comments, no
 comments, or anywhere in between - so long as you can explain your approach)
 
 If you find generative AI tools add value to your work, feel free to use them. You should include
