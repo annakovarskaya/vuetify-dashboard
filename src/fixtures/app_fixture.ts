@@ -21,7 +21,10 @@ const user2 = {
 
 export const users: Array<User> = [user1, user2];
 
-const createInventoryForUser = (user: User, length: number): UserProduct[] => {
+export const createInventoryForUser = (
+  user: User,
+  length: number,
+): UserProduct[] => {
   const userInventory: UserProduct[] = [];
 
   const userColumns: Column[] | undefined = hospitalColumns.get(user.hospital);
@@ -52,6 +55,3 @@ const createInventoryForUser = (user: User, length: number): UserProduct[] => {
 
   return userInventory;
 };
-
-export const user1Inventory: UserProduct[] = createInventoryForUser(user1, 15);
-export const user2Inventory: UserProduct[] = createInventoryForUser(user2, 50);

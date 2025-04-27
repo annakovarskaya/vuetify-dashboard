@@ -86,7 +86,12 @@
   </v-container>
 </template>
 <script setup lang="ts">
-import { users, user1Inventory, user2Inventory } from "@/fixtures/app_fixture";
+import {
+  users,
+  user1Inventory,
+  user2Inventory,
+  createInventoryForUser,
+} from "@/fixtures/app_fixture";
 import { RouteNames } from "@/router/routes";
 import type User from "@/types/User";
 import { computed, ref, unref, watch } from "vue";
@@ -108,15 +113,19 @@ const password = ref("");
 
 // Methods
 const onTryToLogin = () => {
-  console.log(user1Inventory);
-  console.log(user2Inventory);
-  isCredentialsCorrect.value = users.some(
+  const user: User | undefined = users.find(
     (user: User) =>
       user.name === unref(login) && user.password === unref(password),
   );
+  isCredentialsCorrect.value = user !== undefined;
   const isCredentialsCorrectValue = unref(isCredentialsCorrect);
   isShowAlert.value = !isCredentialsCorrectValue;
   if (isCredentialsCorrectValue) {
+    if (user === undefined) {
+      throw new Error("User should be defined here");
+    }
+    const userInventory = createInventoryForUser(user, 150);
+    console.log(userInventory);
     router.push({ name: RouteNames.Dashboard });
   }
 };
