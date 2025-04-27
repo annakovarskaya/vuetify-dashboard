@@ -95,6 +95,6 @@ I just gave possible options which I can see and again - i can assume and pick s
    In the real world I can also imagine booleans(which can be shown as Yes/No or Set/Unset etc), time, dateTime and any other specific data types.
    Also do we want to have different types of filtering or just "EQUALS" is enough? I do hope it's enough for test task but in real life we can have such types of filtering:
 
-- equals, not equals - for any type. there also could be exist/not exist filters if there's a possibility to hace optional column values from previous question.
-- greater than, less than on top of first point - for number, date, time, datetime
-- different string searches for string like startsWith, includes, word search etc.
+      - equals, not equals - for any type. there also could be exist/not exist filters if there's a possibility to hace optional column values from previous question.
+      - greater than, less than on top of first point - for number, date, time, datetime
+      - different string searches for string like startsWith, includes, word search etc.
