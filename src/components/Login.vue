@@ -2,10 +2,12 @@
   <v-container class="fill-height">
     <v-row>
       <v-col class="justify-center align-center">
+        <!--
+        Asked copilot's suggestions about colouring, wasn't sure what is more appropriate, i have to admit design is not my strongest skill 
+        -->
         <v-dialog
           v-model="isShowAlert"
           max-width="400"
-          color="warning"
           icon="$error"
           data-cy="error-dialog"
         >
