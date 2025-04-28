@@ -1,6 +1,6 @@
 import type Column from "./Column";
 import ColumnType from "./ColumnType";
-import Hospital from "./Hospital";
+import { Hospital } from "./Hospital";
 
 const BaseColumns: Column[] = [
   { name: "Product name", type: ColumnType.STRING },

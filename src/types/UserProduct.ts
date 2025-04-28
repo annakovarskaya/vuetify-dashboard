@@ -1,3 +1,5 @@
 import type Column from "./Column";
 
-export type UserProduct = Map<Column, string>;
+export type Product = Map<Column, string>;
+
+export type UserProduct = Map<number, Product>;

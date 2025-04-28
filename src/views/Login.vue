@@ -86,19 +86,16 @@
   </v-container>
 </template>
 <script setup lang="ts">
-import {
-  users,
-  user1Inventory,
-  user2Inventory,
-  createInventoryForUser,
-} from "@/fixtures/app_fixture";
+import { users, createInventoryFixtureForUser } from "@/fixtures/app_fixture";
 import { RouteNames } from "@/router/routes";
+import { useStore } from "@/stores/store";
 import type User from "@/types/User";
-import { computed, ref, unref, watch } from "vue";
+import { ref, unref } from "vue";
 import type { Ref } from "vue";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
+const { setUserProducts, setUserHospital } = useStore();
 
 // Refs
 const visible = ref(false);
@@ -124,8 +121,12 @@ const onTryToLogin = () => {
     if (user === undefined) {
       throw new Error("User should be defined here");
     }
-    const userInventory = createInventoryForUser(user, 150);
-    console.log(userInventory);
+
+    // in real world we can call api and get user products in response
+    // here we call fixture function instead
+    const userInventory = createInventoryFixtureForUser(user, 150);
+    setUserHospital(user.hospital);
+    setUserProducts(userInventory);
     router.push({ name: RouteNames.Dashboard });
   }
 };
