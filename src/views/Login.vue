@@ -124,7 +124,7 @@ const onTryToLogin = () => {
 
     // in real world we can call api and get user products in response
     // here we call fixture function instead
-    const userInventory = createInventoryFixtureForUser(user, 150);
+    const userInventory = createInventoryFixtureForUser(user);
     setUserHospital(user.hospital);
     setUserProducts(userInventory);
     router.push({ name: RouteNames.Dashboard });

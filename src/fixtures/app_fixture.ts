@@ -3,28 +3,28 @@ import ColumnType from "@/types/ColumnType";
 import { Hospital } from "@/types/Hospital";
 import { hospitalColumns } from "@/types/HospitalColumns";
 import type User from "@/types/User";
-import type { Product, UserProduct } from "@/types/UserProduct";
+import type { Product } from "@/types/UserProduct";
 import { Chance } from "chance";
 
 const chance = new Chance();
 
-const user1 = {
+export const user1 = {
   name: "Maria",
   password: "password1",
-  hospital: Hospital.LEAMINGTON,
+  hospital: Hospital.Leamington,
   productsNumber: 150,
 };
-const user2 = {
+export const user2 = {
   name: "Maks",
   password: "password2",
-  hospital: Hospital.WARWICK,
+  hospital: Hospital.Warwick,
   productsNumber: 84,
 };
 
 export const users: Array<User> = [user1, user2];
 
-export const createInventoryFixtureForUser = (user: User): UserProduct[] => {
-  const userInventory: UserProduct[] = [];
+export const createInventoryFixtureForUser = (user: User): Product[] => {
+  const userInventory: Product[] = [];
 
   const userColumns: Column[] | undefined = hospitalColumns.get(user.hospital);
   if (userColumns === undefined) {
@@ -32,26 +32,26 @@ export const createInventoryFixtureForUser = (user: User): UserProduct[] => {
   }
   Array.from({ length: user.productsNumber }, (_, index) => {
     const product: Product = new Map();
-    const userProduct: UserProduct = new Map();
+    product.set("id", index.toString());
     userColumns.forEach((column: Column) => {
       let value: string = chance.word();
       // this data structure allows us to add new column types easily
-      switch (column.type) {
-        case ColumnType.STRING:
+      switch (column.headerProps.type) {
+        case ColumnType.String:
           break;
-        case ColumnType.NUMBER:
+        case ColumnType.Number:
           value = chance.integer({ min: 1, max: 20 }).toString();
           break;
-        case ColumnType.DATE:
+        case ColumnType.Date:
           value = chance.date({ string: true });
           break;
         default:
           throw new Error("Unknown column type");
       }
-      product.set(column, value);
-      userProduct.set(index, product);
+
+      product.set(column.key, value);
     });
-    userInventory.push(userProduct);
+    userInventory.push(product);
   });
 
   return userInventory;

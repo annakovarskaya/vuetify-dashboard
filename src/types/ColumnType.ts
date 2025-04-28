@@ -1,7 +1,7 @@
 enum ColumnType {
-  STRING,
-  NUMBER,
-  DATE,
+  String,
+  Number,
+  Date,
   // we can add more types to this enum if we want later
 }
 export default ColumnType;

@@ -3,19 +3,43 @@ import ColumnType from "./ColumnType";
 import { Hospital } from "./Hospital";
 
 const BaseColumns: Column[] = [
-  { name: "Product name", type: ColumnType.STRING },
-  { name: "Item number", type: ColumnType.NUMBER },
-  { name: "Manufacturer", type: ColumnType.STRING },
-  { name: "Category", type: ColumnType.STRING },
-  { name: "Quantity", type: ColumnType.NUMBER },
+  {
+    title: "Product name",
+    headerProps: { type: ColumnType.String },
+    key: "product_name",
+  },
+  {
+    title: "Item number",
+    headerProps: { type: ColumnType.String },
+    key: "item_number",
+  },
+  {
+    title: "Manufacturer",
+    headerProps: { type: ColumnType.String },
+    key: "manufacturer",
+  },
+  {
+    title: "Category",
+    headerProps: { type: ColumnType.String },
+    key: "category",
+  },
+  {
+    title: "Quantity",
+    headerProps: { type: ColumnType.String },
+    key: "quantity",
+  },
 ];
 
 export const hospitalColumns: Map<Hospital, Column[]> = new Map();
 
 // Columns config for every hospital
-hospitalColumns.set(Hospital.LEAMINGTON, BaseColumns);
-hospitalColumns.set(Hospital.WARWICK, [
+hospitalColumns.set(Hospital.Leamington, BaseColumns);
+hospitalColumns.set(Hospital.Warwick, [
   ...BaseColumns,
-  { name: "Expiry date", type: ColumnType.DATE },
-  { name: "Price", type: ColumnType.NUMBER },
+  {
+    title: "Expiry date",
+    headerProps: { type: ColumnType.Date },
+    key: "expiry_date",
+  },
+  { title: "Price", headerProps: { type: ColumnType.String }, key: "price" },
 ]);

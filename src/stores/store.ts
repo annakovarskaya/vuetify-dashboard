@@ -1,15 +1,15 @@
 import { Hospital } from "@/types/Hospital";
-import type { UserProduct } from "@/types/UserProduct";
+import type { Product } from "@/types/UserProduct";
 import { defineStore } from "pinia";
 import { ref, type Ref } from "vue";
 
 export const useStore = defineStore("store", () => {
   // State
-  const userProducts: Ref<Array<UserProduct>> = ref([]);
+  const userProducts: Ref<Array<Product>> = ref([]);
   const userHospital: Ref<Hospital | null> = ref(null);
 
   // Actions
-  function setUserProducts(products: Array<UserProduct>) {
+  function setUserProducts(products: Array<Product>) {
     userProducts.value = products;
   }
 

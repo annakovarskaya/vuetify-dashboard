@@ -1,169 +1,159 @@
 <template>
-  <v-sheet border rounded>
-    <v-data-table
-      :headers="headers"
-      :hide-default-footer="products.length < 11"
-      :items="products"
-    >
-      <template v-slot:top>
-        <v-toolbar flat>
-          <v-toolbar-title>
-            <v-icon
-              color="medium-emphasis"
-              icon="mdi-book-multiple"
-              size="x-small"
-              start
-            ></v-icon>
-            Popular products
-          </v-toolbar-title>
-
-          <v-btn
-            class="me-2"
-            prepend-icon="mdi-plus"
-            rounded="lg"
-            text="Add a Book"
-            border
-            @click="add"
-          ></v-btn>
-        </v-toolbar>
-      </template>
-
-      <template v-slot:item.title="{ value }">
-        <v-chip
-          :text="value"
-          border="thin opacity-25"
-          prepend-icon="mdi-book"
-          label
+  <v-container class="fill-height">
+    <v-row>
+      <v-col class="justify-center align-center">
+        <v-data-table-server
+          v-model:items-per-page="itemsPerPage"
+          :headers="headers"
+          :items="serverItems"
+          :items-length="totalItems"
+          :loading="loading"
+          :search="search"
+          item-value="name"
+          @update:options="loadItems"
+          fixed-header
         >
-          <template v-slot:prepend>
-            <v-icon color="medium-emphasis"></v-icon>
+          <!-- in real world i would implement filtering as FilterAlt Material Icon button near sort icon at the top of each column and -->
+          <!-- will open modal with filter input and 'Search' by click on this button -->
+          <!-- current UX isn't ideal but it's faster to implement and I want to send task today :)  -->
+          <!-- happy to implement explained solution by additional request if needed-->
+          <template v-slot:tfoot>
+            <tr>
+              <td>
+                <v-text-field
+                  v-model="name"
+                  class="ma-2"
+                  density="compact"
+                  placeholder="Search name..."
+                  hide-details
+                  sticky
+                ></v-text-field>
+              </td>
+              <td>
+                <v-text-field
+                  v-model="calories"
+                  class="ma-2"
+                  density="compact"
+                  placeholder="Minimum calories"
+                  type="number"
+                  hide-details
+                ></v-text-field>
+              </td>
+            </tr>
           </template>
-        </v-chip>
-      </template>
-
-      <template v-slot:item.actions="{ item }">
-        <div class="d-flex ga-2 justify-end">
-          <v-icon
-            color="medium-emphasis"
-            icon="mdi-pencil"
-            size="small"
-            @click="edit(item.id)"
-          ></v-icon>
-
-          <v-icon
-            color="medium-emphasis"
-            icon="mdi-delete"
-            size="small"
-            @click="remove(item.id)"
-          ></v-icon>
-        </div>
-      </template>
-
-      <template v-slot:no-data>
-        <v-btn
-          prepend-icon="mdi-backup-restore"
-          rounded="lg"
-          text="Reset data"
-          variant="text"
-          border
-          @click="reset"
-        ></v-btn>
-      </template>
-    </v-data-table>
-  </v-sheet>
-
-  <v-dialog v-model="dialog" max-width="500">
-    <v-card
-      :subtitle="`${isEditing ? 'Update' : 'Create'} your favorite book`"
-      :title="`${isEditing ? 'Edit' : 'Add'} a Book`"
-    >
-      <template v-slot:text>
-        <v-row>
-          <v-col cols="12">
-            <v-text-field v-model="record.title" label="Title"></v-text-field>
-          </v-col>
-
-          <v-col cols="12" md="6">
-            <v-text-field v-model="record.author" label="Author"></v-text-field>
-          </v-col>
-
-          <v-col cols="12" md="6">
-            <v-select
-              v-model="record.genre"
-              :items="['Fiction', 'Dystopian', 'Non-Fiction', 'Sci-Fi']"
-              label="Genre"
-            ></v-select>
-          </v-col>
-
-          <v-col cols="12" md="6">
-            <v-number-input
-              v-model="record.year"
-              :max="adapter.getYear(adapter.date())"
-              :min="1"
-              label="Year"
-            ></v-number-input>
-          </v-col>
-
-          <v-col cols="12" md="6">
-            <v-number-input
-              v-model="record.pages"
-              :min="1"
-              label="Pages"
-            ></v-number-input>
-          </v-col>
-        </v-row>
-      </template>
-
-      <v-divider></v-divider>
-
-      <v-card-actions class="bg-surface-light">
-        <v-btn text="Cancel" variant="plain" @click="dialog = false"></v-btn>
-
-        <v-spacer></v-spacer>
-
-        <v-btn text="Save" @click="save"></v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+          <template v-slot:item.actions="{ item }">
+            <div class="d-flex ga-2 justify-end">
+              <v-icon icon="mdi-pencil" size="small"></v-icon>
+              <v-icon icon="mdi-delete" size="small"></v-icon>
+            </div>
+          </template>
+        </v-data-table-server>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 <script setup lang="ts">
-import { onMounted, ref, unref, shallowRef, computed } from "vue";
-import { useDate } from "vuetify";
+import { ApplicationConstants } from "@/constants/ApplicationConstants";
 import { useStore } from "@/stores/store";
-
-import type { UserProduct } from "@/types/UserProduct";
-
-import type { ComputedRef, Ref } from "vue";
+import type Column from "@/types/Column";
 import type { Hospital } from "@/types/Hospital";
+import { hospitalColumns } from "@/types/HospitalColumns";
+import type { Product } from "@/types/UserProduct";
+import { computed, ref, unref, watch, type ComputedRef, onMounted } from "vue";
+import type { DataTableHeader } from "vuetify";
 
-const adapter = useDate();
 const store = useStore();
 
-const DEFAULT_RECORD = {
-  title: "",
-  author: "",
-  genre: "",
-  year: adapter.getYear(adapter.date()),
-  pages: 1,
+// gonna give on typing code for fake api
+const FakeAPI = {
+  async fetch({ page, itemsPerPage, sortBy, search }) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const start = (page - 1) * itemsPerPage;
+        const end = start + itemsPerPage;
+        const items = unref(products)
+          .slice()
+          .filter((item) => {
+            if (
+              search.name &&
+              !item.name.toLowerCase().includes(search.name.toLowerCase())
+            ) {
+              return false;
+            }
+            // eslint-disable-next-line sonarjs/prefer-single-boolean-return
+            if (
+              search.calories &&
+              !(item.calories >= Number(search.calories))
+            ) {
+              return false;
+            }
+            return true;
+          });
+        if (sortBy.length) {
+          const sortKey = sortBy[0].key;
+          const sortOrder = sortBy[0].order;
+          items.sort((a, b) => {
+            const aValue = a[sortKey];
+            const bValue = b[sortKey];
+            return sortOrder === "desc" ? bValue - aValue : aValue - bValue;
+          });
+        }
+        const paginated = items.slice(start, end === -1 ? undefined : end);
+        resolve({ items: paginated, total: items.length });
+      }, 500);
+    });
+  },
 };
 
-const products = ref([]);
-const record = ref(DEFAULT_RECORD);
-const dialog = shallowRef(false);
-const isEditing = shallowRef(false);
+// refs
+const itemsPerPage = ref(ApplicationConstants.ProductsPerPage);
+const serverItems = ref([]);
+const loading = ref(true);
+const totalItems = ref(0);
+const name = ref("");
+const calories = ref("");
+const search = ref("");
 
-const headers = [
-  { title: "Title", key: "title", align: "start" },
-  { title: "Author", key: "author" },
-  { title: "Genre", key: "genre" },
-  { title: "Year", key: "year", align: "end" },
-  { title: "Pages", key: "pages", align: "end" },
-  { title: "Actions", key: "actions", align: "end", sortable: false },
-];
+// methods
+// gonna give on typing code for fake api
+const loadItems = ({ page, sortBy, itemsPerPage }) => {
+  loading.value = true;
+  FakeAPI.fetch({
+    page,
+    sortBy,
+    itemsPerPage,
+    search: { name: name.value, calories: calories.value },
+  }).then(({ items, total }) => {
+    serverItems.value = items;
+    totalItems.value = total;
+    loading.value = false;
+  });
+};
+
+onMounted(() => {
+  console.log(unref(headers));
+  console.log(store.userProducts);
+});
 
 // Computed refs
-const userProducts: ComputedRef<UserProduct[]> = computed(() => {
-  return store.userProducts;
+const headers: ComputedRef<DataTableHeader[]> = computed(() => {
+  const columns: DataTableHeader[] | undefined = hospitalColumns.get(
+    unref(userHospital),
+  );
+  if (columns === undefined) {
+    throw new Error("Hospital columns should be set in configs by that point");
+  }
+  columns.push({
+    title: "Actions",
+    key: "actions",
+    align: "end",
+    sortable: false,
+  });
+  return columns;
+});
+
+const products: ComputedRef<Array<Record<string, string>>> = computed(() => {
+  return store.userProducts.map((map) => Object.fromEntries(map));
 });
 
 const userHospital: ComputedRef<Hospital> = computed(() => {
@@ -173,98 +163,16 @@ const userHospital: ComputedRef<Hospital> = computed(() => {
   return store.userHospital;
 });
 
-onMounted(() => {
-  reset();
-  console.log(unref(userProducts));
-  console.log(unref(userHospital));
+// Watchers
+watch(name, () => {
+  search.value = String(Date.now());
 });
-
-function add() {
-  isEditing.value = false;
-  record.value = DEFAULT_RECORD;
-  dialog.value = true;
-}
-
-function edit(id) {
-  isEditing.value = true;
-
-  const found = products.value.find((book) => book.id === id);
-
-  record.value = {
-    id: found.id,
-    title: found.title,
-    author: found.author,
-    genre: found.genre,
-    year: found.year,
-    pages: found.pages,
-  };
-
-  dialog.value = true;
-}
-
-function remove(id) {
-  const index = products.value.findIndex((book) => book.id === id);
-  products.value.splice(index, 1);
-}
-
-function save() {
-  if (isEditing.value) {
-    const index = products.value.findIndex(
-      (book) => book.id === record.value.id,
-    );
-    products.value[index] = record.value;
-  } else {
-    record.value.id = products.value.length + 1;
-    products.value.push(record.value);
-  }
-
-  dialog.value = false;
-}
-
-function reset() {
-  dialog.value = false;
-  record.value = DEFAULT_RECORD;
-  products.value = [
-    {
-      id: 1,
-      title: "To Kill a Mockingbird",
-      author: "Harper Lee",
-      genre: "Fiction",
-      year: 1960,
-      pages: 281,
-    },
-    {
-      id: 2,
-      title: "1984",
-      author: "George Orwell",
-      genre: "Dystopian",
-      year: 1949,
-      pages: 328,
-    },
-    {
-      id: 3,
-      title: "The Great Gatsby",
-      author: "F. Scott Fitzgerald",
-      genre: "Fiction",
-      year: 1925,
-      pages: 180,
-    },
-    {
-      id: 4,
-      title: "Sapiens",
-      author: "Yuval Noah Harari",
-      genre: "Non-Fiction",
-      year: 2011,
-      pages: 443,
-    },
-    {
-      id: 5,
-      title: "Dune",
-      author: "Frank Herbert",
-      genre: "Sci-Fi",
-      year: 1965,
-      pages: 412,
-    },
-  ];
-}
+watch(calories, () => {
+  search.value = String(Date.now());
+});
 </script>
+<style>
+/* css styling is not great here but as far as i use vuetify first time ever and css is not my strongest power, i'm gonna concentrate on
+functionality to finish task today. happy to refactor styling by additional request if needed
+*/
+</style>
