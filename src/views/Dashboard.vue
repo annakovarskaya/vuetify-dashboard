@@ -43,8 +43,8 @@
           </template>
           <template v-slot:item.actions="{ item }">
             <div class="d-flex ga-2 justify-end">
-              <v-icon icon="mdi-pencil" size="small"></v-icon>
-              <v-icon icon="mdi-delete" size="small"></v-icon>
+              <v-icon icon="mdi-pencil"></v-icon>
+              <v-icon icon="mdi-delete"></v-icon>
             </div>
           </template>
         </v-data-table-server>
@@ -56,6 +56,7 @@
 import { ApplicationConstants } from "@/constants/ApplicationConstants";
 import { useStore } from "@/stores/store";
 import type Column from "@/types/Column";
+import type ColumnType from "@/types/ColumnType";
 import type { Hospital } from "@/types/Hospital";
 import { hospitalColumns } from "@/types/HospitalColumns";
 import type { Product } from "@/types/UserProduct";
@@ -92,6 +93,13 @@ const FakeAPI = {
         if (sortBy.length) {
           const sortKey = sortBy[0].key;
           const sortOrder = sortBy[0].order;
+          const headerType: ColumnType | undefined = unref(headers).find(
+            (header) => header.key === sortKey,
+          )?.headerProps?.type;
+          console.log(headerType);
+          if (headerType === undefined) {
+            throw new Error("Header type should be");
+          }
           items.sort((a, b) => {
             const aValue = a[sortKey];
             const bValue = b[sortKey];
@@ -115,6 +123,7 @@ const calories = ref("");
 const search = ref("");
 
 // methods
+
 // gonna give on typing code for fake api
 const loadItems = ({ page, sortBy, itemsPerPage }) => {
   loading.value = true;
@@ -153,7 +162,9 @@ const headers: ComputedRef<DataTableHeader[]> = computed(() => {
 });
 
 const products: ComputedRef<Array<Record<string, string>>> = computed(() => {
-  return store.userProducts.map((map) => Object.fromEntries(map));
+  return store.userProducts.map((product: Product) =>
+    Object.fromEntries(product),
+  );
 });
 
 const userHospital: ComputedRef<Hospital> = computed(() => {

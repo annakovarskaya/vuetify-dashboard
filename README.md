@@ -37,5 +37,12 @@ This application implemented with Vue 3, Typescript, Pinia, Vue Router and Vueti
 
 - Pinia was chosen as it's the most powerful store for Vue.js for today for my opinion
 - There were 2 reasons for choosing Vuetify:
-  1. It has data table server component which is really suitable for given task - it supports filter and sort which were requested to implement and pagination also which is must have(or infinite scroll alternatively) for large sets of data mentioned in the task
+  1. I was looking for readymade data table vue component which implements sort, filter and pagination (or infinte scroll).
+     I wanted this to be server-side ideally, because it's better for large datasets as it improve efficiency, reduce bandwidth, scale better, optimize database use, enhance security, and deliver a smoother user experience.
+     Such component was found in vuetify library :) https://vuetifyjs.com/en/components/data-tables/server-side-tables
   2. Vuetify was mentioned as desirable skill for this role and I've never tried it out before so I was curious :)
+
+There are 2 users to login from different hospitals, each has different set of columns according to their hospoital:
+
+- Login: Maria, password: password1
+- Login: Maks, password: password2

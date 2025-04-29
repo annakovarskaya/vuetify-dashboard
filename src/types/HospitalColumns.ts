@@ -10,7 +10,7 @@ const BaseColumns: Column[] = [
   },
   {
     title: "Item number",
-    headerProps: { type: ColumnType.String },
+    headerProps: { type: ColumnType.Number },
     key: "item_number",
   },
   {
@@ -25,7 +25,7 @@ const BaseColumns: Column[] = [
   },
   {
     title: "Quantity",
-    headerProps: { type: ColumnType.String },
+    headerProps: { type: ColumnType.Number },
     key: "quantity",
   },
 ];
@@ -41,5 +41,5 @@ hospitalColumns.set(Hospital.Warwick, [
     headerProps: { type: ColumnType.Date },
     key: "expiry_date",
   },
-  { title: "Price", headerProps: { type: ColumnType.String }, key: "price" },
+  { title: "Price", headerProps: { type: ColumnType.Number }, key: "price" },
 ]);
