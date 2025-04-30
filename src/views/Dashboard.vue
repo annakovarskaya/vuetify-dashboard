@@ -71,6 +71,8 @@ import { filterItems } from "vuetify/lib/composables/filter.mjs";
 
 const store = useStore();
 
+const { userProducts, userHospital } = store;
+
 // gonna give on typing code for fake api
 // also if our API is real, it's no need to unit test it - should be tested on backend side
 // but if i have more time i would move all fake api functionality to composable and unit test it just to show i can unit test :)
@@ -81,7 +83,7 @@ const FakeAPI = {
       setTimeout(() => {
         const start = (page - 1) * itemsPerPage;
         const end = start + itemsPerPage;
-        let items = unref(products).slice();
+        let items = unref(userProducts).slice();
 
         if (sortBy?.length) {
           items = fakeAPISort(sortBy, items);
@@ -111,13 +113,15 @@ const fakeAPIFilter = () => {
   console.log(filters.value);
   console.log(search);
   const filterObj = {};
-  serverItems.value = unref(products);
+  serverItems.value = unref(userProducts);
   Object.keys(search).forEach((key) => {
     const headerType = unref(columns).find((header) => header.key === key)
       ?.headerProps?.type;
     if (search[key]) {
       filterObj[key] = search[key];
-      serverItems.value = filter(unref(products), filterObj);
+      serverItems.value = filter(unref(userProducts), filterObj);
+      // todo look on it later
+      //store.setUserProducts(unref(userProducts).filter(()));
     }
   });
   loading.value = false;
@@ -146,7 +150,7 @@ interface Filter {
 
 // refs
 const itemsPerPage = ref(ApplicationConstants.ProductsPerPage);
-const serverItems = ref([]);
+const serverItems: Ref<Array<Product>> = ref([]);
 const loading = ref(true);
 const totalItems = ref(0);
 const filters: Ref<Array<Ref<string>>> = ref([]);
@@ -166,6 +170,8 @@ const loadItems = ({ page, sortBy, itemsPerPage }) => {
     serverItems.value = items;
     totalItems.value = total;
     loading.value = false;
+    console.log();
+    // store.setUserProducts(unref(serverItems));
   });
 };
 
@@ -200,19 +206,6 @@ onBeforeMount(() => {
   });
   console.log("tt");
   console.log(filters.value);
-});
-
-const products: ComputedRef<Array<Record<string, string>>> = computed(() => {
-  return store.userProducts.map((product: Product) =>
-    Object.fromEntries(product),
-  );
-});
-
-const userHospital: ComputedRef<Hospital> = computed(() => {
-  if (store.userHospital === null) {
-    throw new Error("Hospital should be set in store by that point");
-  }
-  return store.userHospital;
 });
 
 // Watchers
