@@ -9,7 +9,6 @@ export const useStore = defineStore("store", () => {
   const hospital: Ref<Hospital | null> = ref(null);
 
   // Getters
-
   const userHospital: ComputedRef<Hospital> = computed(() => {
     const hospitalValue = unref(hospital);
     if (hospitalValue === null) {
@@ -23,6 +22,12 @@ export const useStore = defineStore("store", () => {
     products.value = productsValue;
   }
 
+  function deleteUserProduct(item: Product) {
+    products.value = unref(products).filter(
+      (product: Product) => product.id !== item.id,
+    );
+  }
+
   function setUserHospital(hospitalValue: Hospital) {
     hospital.value = hospitalValue;
   }
@@ -32,5 +37,6 @@ export const useStore = defineStore("store", () => {
     userHospital,
     setUserProducts,
     setUserHospital,
+    deleteUserProduct,
   };
 });

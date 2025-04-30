@@ -38,7 +38,7 @@
           <template v-slot:item.actions="{ item }">
             <div class="d-flex ga-2 justify-end">
               <v-icon icon="mdi-pencil"></v-icon>
-              <v-icon icon="mdi-delete"></v-icon>
+              <v-icon icon="mdi-delete" @click="deleteProduct(item)"></v-icon>
             </div>
           </template>
         </v-data-table-server>
@@ -72,7 +72,7 @@ import { filterItems } from "vuetify/lib/composables/filter.mjs";
 
 const store = useStore();
 
-const { products, userHospital } = store;
+const { userHospital } = store;
 
 // gonna give on typing code for fake api
 // also if our API is real, it's no need to unit test it - should be tested on backend side
@@ -84,7 +84,7 @@ const FakeAPI = {
       setTimeout(() => {
         const start = (page - 1) * itemsPerPage;
         const end = start + itemsPerPage;
-        let items = unref(products).slice();
+        let items = store.products.slice();
         debugger;
 
         if (sortBy?.length) {
@@ -112,13 +112,13 @@ const fakeAPIFilter = () => {
     }
   });
   const filterObj = {};
-  serverItems.value = unref(products);
+  serverItems.value = store.products;
   Object.keys(search).forEach((key) => {
     const headerType = unref(columns).find((header) => header.key === key)
       ?.headerProps?.type;
     if (search[key]) {
       filterObj[key] = search[key];
-      serverItems.value = filter(unref(products), filterObj);
+      serverItems.value = filter(store.products, filterObj);
     }
   });
   loading.value = false;
@@ -139,7 +139,6 @@ const fakeAPISort = (
   // we still need to format dates to show in the table with vuetify slots,
   // could be implemented by additional request if needed
   const orderedItems = orderBy(items, [sortKey], [sortOrder]);
-  store.setUserProducts(orderedItems);
   return orderedItems;
 };
 
@@ -160,6 +159,19 @@ const search = ref("");
 const serverSortBy: Ref<SortItem[]> = ref([]);
 
 // methods
+const deleteProduct = async (item: Product) => {
+  // i would add confirmation modal here before actual delete but want to send task todat so will skip it
+  // happy to implement it by additional request if needed
+  store.deleteUserProduct(item);
+
+  // await nextTick();
+
+  await loadItems({
+    page: 1,
+    itemsPerPage: unref(itemsPerPage),
+    sortBy: unref(serverSortBy),
+  });
+};
 
 // gonna give on typing code for fake api
 const loadItems = ({ page, sortBy, itemsPerPage }) => {
