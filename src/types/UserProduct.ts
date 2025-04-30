@@ -1,3 +1,3 @@
 import type Column from "./Column";
 
-export type Product = Map<string, string>;
+export type Product = Record<string, string>;

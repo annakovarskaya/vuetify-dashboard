@@ -88,7 +88,11 @@
   </v-container>
 </template>
 <script setup lang="ts">
-import { users, createInventoryFixtureForUser } from "@/fixtures/app_fixture";
+import {
+  users,
+  createInventoryFixtureForUser,
+  user2,
+} from "@/fixtures/app_fixture";
 import { RouteNames } from "@/router/routes";
 import { useStore } from "@/stores/store";
 import type User from "@/types/User";
@@ -117,17 +121,23 @@ const onTryToLogin = () => {
       user.name === unref(login) && user.password === unref(password),
   );
   isCredentialsCorrect.value = user !== undefined;
+
+  // todo move it when debug is done
+  isCredentialsCorrect.value = true;
   const isCredentialsCorrectValue = unref(isCredentialsCorrect);
   isShowAlert.value = !isCredentialsCorrectValue;
+
   if (isCredentialsCorrectValue) {
-    if (user === undefined) {
+    // todo uncomment when debug done
+    /*if (user === undefined) {
       throw new Error("User should be defined here");
-    }
+    }*/
 
     // in real world we can call api and get user products in response
     // here we call fixture function instead
-    const userInventory = createInventoryFixtureForUser(user);
-    setUserHospital(user.hospital);
+    // todo swap user2 to user when debug is done
+    const userInventory = createInventoryFixtureForUser(user2);
+    setUserHospital(user2.hospital);
     setUserProducts(userInventory);
     router.push({ name: RouteNames.Dashboard });
   }

@@ -32,8 +32,8 @@ export const createInventoryFixtureForUser = (user: User): Product[] => {
   }
 
   Array.from({ length: user.productsNumber }, (_, index) => {
-    const product: Product = new Map();
-    product.set("id", index.toString());
+    const product: Product = {};
+    product["id"] = index.toString();
     userColumns.forEach((column: Column) => {
       let value: string = chance.word();
       // this data structure allows us to add new column types easily
@@ -50,7 +50,7 @@ export const createInventoryFixtureForUser = (user: User): Product[] => {
           throw new Error("Unknown column type");
       }
 
-      product.set(column.key, value);
+      product[column.key] = value;
     });
     userInventory.push(product);
   });

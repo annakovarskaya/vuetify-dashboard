@@ -9,13 +9,6 @@ export const useStore = defineStore("store", () => {
   const hospital: Ref<Hospital | null> = ref(null);
 
   // Getters
-  const userProducts: ComputedRef<Array<Record<string, string>>> = computed(
-    () => {
-      return unref(products).map((product: Product) =>
-        Object.fromEntries(product),
-      );
-    },
-  );
 
   const userHospital: ComputedRef<Hospital> = computed(() => {
     const hospitalValue = unref(hospital);
@@ -30,16 +23,12 @@ export const useStore = defineStore("store", () => {
     products.value = productsValue;
   }
 
-  /*function updateUserProducts(products: Array<Record<string, string>>) {
-    products.value = products;
-  }*/
-
   function setUserHospital(hospitalValue: Hospital) {
     hospital.value = hospitalValue;
   }
 
   return {
-    userProducts,
+    products,
     userHospital,
     setUserProducts,
     setUserHospital,

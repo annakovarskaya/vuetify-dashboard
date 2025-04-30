@@ -9,6 +9,7 @@
           :items-length="totalItems"
           :loading="loading"
           :search="search"
+          :sortBy="serverSortBy"
           item-value="name"
           @update:options="loadItems"
           fixed-header
@@ -71,7 +72,7 @@ import { filterItems } from "vuetify/lib/composables/filter.mjs";
 
 const store = useStore();
 
-const { userProducts, userHospital } = store;
+const { products, userHospital } = store;
 
 // gonna give on typing code for fake api
 // also if our API is real, it's no need to unit test it - should be tested on backend side
@@ -83,14 +84,15 @@ const FakeAPI = {
       setTimeout(() => {
         const start = (page - 1) * itemsPerPage;
         const end = start + itemsPerPage;
-        let items = unref(userProducts).slice();
+        let items = unref(products).slice();
+        debugger;
 
         if (sortBy?.length) {
           items = fakeAPISort(sortBy, items);
         }
 
         const paginated = items.slice(start, end === -1 ? undefined : end);
-        resolve({ items: paginated, total: items.length });
+        resolve({ items: paginated, total: items.length, sortBy });
       }, 500);
     });
   },
@@ -102,7 +104,6 @@ const FakeAPI = {
 // happy to fix by additional request or talk about it deeper during discussion
 const fakeAPIFilter = () => {
   loading.value = true;
-  console.log("we load items");
   const search = {};
   unref(columns).forEach((header: Column, index) => {
     const modelValue = unref(filters)[index].value;
@@ -110,23 +111,21 @@ const fakeAPIFilter = () => {
       search[header.key] = modelValue;
     }
   });
-  console.log(filters.value);
-  console.log(search);
   const filterObj = {};
-  serverItems.value = unref(userProducts);
+  serverItems.value = unref(products);
   Object.keys(search).forEach((key) => {
     const headerType = unref(columns).find((header) => header.key === key)
       ?.headerProps?.type;
     if (search[key]) {
       filterObj[key] = search[key];
-      serverItems.value = filter(unref(userProducts), filterObj);
-      // todo look on it later
-      //store.setUserProducts(unref(userProducts).filter(()));
+      serverItems.value = filter(unref(products), filterObj);
     }
   });
   loading.value = false;
 };
 
+// there's a bug in sorting - it works for asc and desc first 2 clicks, but looses sortBy on 3rd click so shows initials unsorted array
+// i digged it a bit - think it's an effect of fake api so I leave it in peace
 const fakeAPISort = (
   sortBy: SortItem[],
   items: Array<Record<string, string>>,
@@ -139,7 +138,9 @@ const fakeAPISort = (
   // todo lodash's orderBy sorts perfectly values of different types
   // we still need to format dates to show in the table with vuetify slots,
   // could be implemented by additional request if needed
-  return orderBy(items, [sortKey], [sortOrder]);
+  const orderedItems = orderBy(items, [sortKey], [sortOrder]);
+  store.setUserProducts(orderedItems);
+  return orderedItems;
 };
 
 // todo move it to types
@@ -156,6 +157,7 @@ const totalItems = ref(0);
 const filters: Ref<Array<Ref<string>>> = ref([]);
 
 const search = ref("");
+const serverSortBy: Ref<SortItem[]> = ref([]);
 
 // methods
 
@@ -166,12 +168,11 @@ const loadItems = ({ page, sortBy, itemsPerPage }) => {
     page,
     sortBy,
     itemsPerPage,
-  }).then(({ items, total }) => {
+  }).then(({ items, total, sortBy }) => {
     serverItems.value = items;
     totalItems.value = total;
     loading.value = false;
-    console.log();
-    // store.setUserProducts(unref(serverItems));
+    serverSortBy.value = sortBy;
   });
 };
 
@@ -200,12 +201,12 @@ const columns: ComputedRef<Column[]> = computed(() => {
   return columns;
 });
 
+// had as onMount before then found it fires after table's @update:options is fired
+// copilot explained what happened and suggested onBeforwMount
 onBeforeMount(() => {
   filters.value = unref(columns).map((header: Column) => {
     return ref("");
   });
-  console.log("tt");
-  console.log(filters.value);
 });
 
 // Watchers
