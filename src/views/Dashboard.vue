@@ -164,6 +164,7 @@ const serverSortBy: Ref<SortItem[]> = ref([]);
 // gonna give on typing code for fake api
 const loadItems = ({ page, sortBy, itemsPerPage }) => {
   loading.value = true;
+  filters.value = unref(filters).map((filter) => ref(""));
   FakeAPI.fetch({
     page,
     sortBy,
