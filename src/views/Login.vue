@@ -48,6 +48,7 @@
             variant="outlined"
             v-model="login"
             data-cy="user-input"
+            @keydown.enter="onTryToLogin"
           ></v-text-field>
 
           <div
@@ -67,6 +68,7 @@
             data-cy="password-input"
             :data-cy-type="visible ? 'text' : 'password'"
             @click:append-inner="visible = !visible"
+            @keydown.enter="onTryToLogin"
           />
 
           <v-btn

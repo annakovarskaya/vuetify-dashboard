@@ -13,34 +13,27 @@
           @update:options="loadItems"
           fixed-header
         >
-          <!-- in real world i would implement filtering as FilterAlt Material Icon button near sort icon at the top of each column and -->
+          <!-- 1. in real world i would implement filtering as FilterAlt Material Icon button near sort icon at the top of each column and -->
           <!-- will open modal with filter input and 'Search' by click on this button -->
+          <!-- 2. i would also make filter fields not just text fields but also number inputs and date pickers according to header type -->
           <!-- current UX isn't ideal but it's faster to implement and I want to send task today :)  -->
           <!-- happy to implement explained solution by additional request if needed-->
           <template v-slot:tfoot>
             <tr>
-              <td>
+              <td v-for="(filter, index) in filters">
                 <v-text-field
-                  v-model="name"
+                  v-model="filter.value"
+                  @change="fakeAPIFilter"
                   class="ma-2"
                   density="compact"
-                  placeholder="Search name..."
+                  :placeholder="headers[index].title"
                   hide-details
                   sticky
                 ></v-text-field>
               </td>
-              <td>
-                <v-text-field
-                  v-model="calories"
-                  class="ma-2"
-                  density="compact"
-                  placeholder="Minimum calories"
-                  type="number"
-                  hide-details
-                ></v-text-field>
-              </td>
             </tr>
           </template>
+
           <template v-slot:item.actions="{ item }">
             <div class="d-flex ga-2 justify-end">
               <v-icon icon="mdi-pencil"></v-icon>
@@ -56,56 +49,44 @@
 import { ApplicationConstants } from "@/constants/ApplicationConstants";
 import { useStore } from "@/stores/store";
 import type Column from "@/types/Column";
-import type ColumnType from "@/types/ColumnType";
+import ColumnType from "@/types/ColumnType";
 import type { Hospital } from "@/types/Hospital";
 import { hospitalColumns } from "@/types/HospitalColumns";
 import type { Product } from "@/types/UserProduct";
-import { computed, ref, unref, watch, type ComputedRef, onMounted } from "vue";
+import {
+  computed,
+  ref,
+  unref,
+  watch,
+  type ComputedRef,
+  onMounted,
+  type Ref,
+  nextTick,
+  onBeforeMount,
+} from "vue";
 import type { DataTableHeader } from "vuetify";
+import type { SortItem } from "vuetify/lib/components/VDataTable/composables/sort.mjs";
+import { clone, filter, orderBy } from "lodash-es";
+import { filterItems } from "vuetify/lib/composables/filter.mjs";
 
 const store = useStore();
 
 // gonna give on typing code for fake api
+// also if our API is real, it's no need to unit test it - should be tested on backend side
+// but if i have more time i would move all fake api functionality to composable and unit test it just to show i can unit test :)
+// but i want to finish and send this today so happy to do it by additional request
 const FakeAPI = {
-  async fetch({ page, itemsPerPage, sortBy, search }) {
+  async fetch({ page, itemsPerPage, sortBy }) {
     return new Promise((resolve) => {
       setTimeout(() => {
         const start = (page - 1) * itemsPerPage;
         const end = start + itemsPerPage;
-        const items = unref(products)
-          .slice()
-          .filter((item) => {
-            if (
-              search.name &&
-              !item.name.toLowerCase().includes(search.name.toLowerCase())
-            ) {
-              return false;
-            }
-            // eslint-disable-next-line sonarjs/prefer-single-boolean-return
-            if (
-              search.calories &&
-              !(item.calories >= Number(search.calories))
-            ) {
-              return false;
-            }
-            return true;
-          });
-        if (sortBy.length) {
-          const sortKey = sortBy[0].key;
-          const sortOrder = sortBy[0].order;
-          const headerType: ColumnType | undefined = unref(headers).find(
-            (header) => header.key === sortKey,
-          )?.headerProps?.type;
-          console.log(headerType);
-          if (headerType === undefined) {
-            throw new Error("Header type should be");
-          }
-          items.sort((a, b) => {
-            const aValue = a[sortKey];
-            const bValue = b[sortKey];
-            return sortOrder === "desc" ? bValue - aValue : aValue - bValue;
-          });
+        let items = unref(products).slice();
+
+        if (sortBy?.length) {
+          items = fakeAPISort(sortBy, items);
         }
+
         const paginated = items.slice(start, end === -1 ? undefined : end);
         resolve({ items: paginated, total: items.length });
       }, 500);
@@ -113,13 +94,86 @@ const FakeAPI = {
   },
 };
 
+// i'm aware we need to call it from fakeAPI in ideal world
+// but there's specificity about data table server component which doesn't allow us to fake filtering properly
+// happy to talk about it deeper during discussion
+const fakeAPIFilter = () => {
+  loading.value = true;
+  console.log("we load items");
+  const search = {};
+  unref(columns).forEach((header: Column, index) => {
+    const modelValue = unref(filters)[index].value;
+    if (modelValue !== "") {
+      search[header.key] = modelValue;
+    }
+  });
+  console.log(filters.value);
+  console.log(search);
+  serverItems.value = unref(products)
+    .slice()
+    .filter((item) => {
+      let result = true;
+      Object.keys(search).forEach((key) => {
+        const headerType = unref(columns).find((header) => header.key === key)
+          ?.headerProps?.type;
+        switch (headerType) {
+          case ColumnType.String:
+            if (search[key] && item[key] !== search[key]) {
+              result = false;
+              return;
+            }
+            break;
+          case ColumnType.Number:
+            if (search[key] && item[key] !== Number(search[key])) {
+              result = false;
+              return;
+            }
+            break;
+          // todo there's still some bug with Date filter, it doesn't work
+          // bur as i feel it's time to show at least initial version, happy to fix it by additional request
+          case ColumnType.Date:
+            console.log(new Date(search[key]));
+            if (search[key] && item[key] !== new Date(search[key])) {
+              result = false;
+              return;
+            }
+            break;
+        }
+      });
+
+      return result;
+    });
+  loading.value = false;
+};
+
+const fakeAPISort = (
+  sortBy: SortItem[],
+  items: Array<Record<string, string | number | Date>>,
+): Array<Record<string, string | number | Date>> => {
+  const sortKey = sortBy[0].key;
+  const sortOrder = sortBy[0].order;
+  if (sortOrder === undefined) {
+    throw new Error("Sort order should be defined");
+  }
+  // todo lodash's orderBy sorts perfectly values of different types
+  // we still need to format dates to show in the table with vuetify slots,
+  // could be implemented by additional request if needed
+  return orderBy(items, [sortKey], [sortOrder]);
+};
+
+// todo move it to types
+interface Filter {
+  name: string;
+  search: Ref<string>;
+}
+
 // refs
 const itemsPerPage = ref(ApplicationConstants.ProductsPerPage);
 const serverItems = ref([]);
 const loading = ref(true);
 const totalItems = ref(0);
-const name = ref("");
-const calories = ref("");
+const filters: Ref<Array<Ref<string>>> = ref([]);
+
 const search = ref("");
 
 // methods
@@ -131,7 +185,6 @@ const loadItems = ({ page, sortBy, itemsPerPage }) => {
     page,
     sortBy,
     itemsPerPage,
-    search: { name: name.value, calories: calories.value },
   }).then(({ items, total }) => {
     serverItems.value = items;
     totalItems.value = total;
@@ -139,33 +192,45 @@ const loadItems = ({ page, sortBy, itemsPerPage }) => {
   });
 };
 
-onMounted(() => {
-  console.log(unref(headers));
-  console.log(store.userProducts);
-});
-
 // Computed refs
-const headers: ComputedRef<DataTableHeader[]> = computed(() => {
-  const columns: DataTableHeader[] | undefined = hospitalColumns.get(
-    unref(userHospital),
-  );
-  if (columns === undefined) {
-    throw new Error("Hospital columns should be set in configs by that point");
-  }
-  columns.push({
+const headers: ComputedRef<Column[]> = computed(() => {
+  // we need this to not mutate config hospital columns set with actions column
+  const columnsToUpdate: Column[] = clone(unref(columns));
+
+  columnsToUpdate.push({
     title: "Actions",
     key: "actions",
     align: "end",
     sortable: false,
   });
+  return columnsToUpdate;
+});
+
+const columns: ComputedRef<Column[]> = computed(() => {
+  const columns: Column[] | undefined = hospitalColumns.get(
+    unref(userHospital),
+  );
+  if (columns === undefined) {
+    throw new Error("Hospital columns should be set in configs by that point");
+  }
+
   return columns;
 });
 
-const products: ComputedRef<Array<Record<string, string>>> = computed(() => {
-  return store.userProducts.map((product: Product) =>
-    Object.fromEntries(product),
-  );
+onBeforeMount(() => {
+  filters.value = unref(columns).map((header: Column) => {
+    return ref("");
+  });
+  console.log("tt");
+  console.log(filters.value);
 });
+
+const products: ComputedRef<Array<Record<string, string | number | Date>>> =
+  computed(() => {
+    return store.userProducts.map((product: Product) =>
+      Object.fromEntries(product),
+    );
+  });
 
 const userHospital: ComputedRef<Hospital> = computed(() => {
   if (store.userHospital === null) {
@@ -175,12 +240,6 @@ const userHospital: ComputedRef<Hospital> = computed(() => {
 });
 
 // Watchers
-watch(name, () => {
-  search.value = String(Date.now());
-});
-watch(calories, () => {
-  search.value = String(Date.now());
-});
 </script>
 <style>
 /* css styling is not great here but as far as i use vuetify first time ever and css is not my strongest power, i'm gonna concentrate on

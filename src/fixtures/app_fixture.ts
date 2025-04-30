@@ -30,21 +30,21 @@ export const createInventoryFixtureForUser = (user: User): Product[] => {
   if (userColumns === undefined) {
     throw Error("Columns should be defined for user's hospital");
   }
+
   Array.from({ length: user.productsNumber }, (_, index) => {
     const product: Product = new Map();
     product.set("id", index.toString());
     userColumns.forEach((column: Column) => {
-      debugger;
       let value: string = chance.word();
       // this data structure allows us to add new column types easily
       switch (column.headerProps.type) {
         case ColumnType.String:
           break;
         case ColumnType.Number:
-          value = chance.integer({ min: 1, max: 20 }).toString();
+          value = chance.integer({ min: 1, max: 20 });
           break;
         case ColumnType.Date:
-          value = chance.date({ string: true });
+          value = chance.date();
           break;
         default:
           throw new Error("Unknown column type");

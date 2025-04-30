@@ -33,16 +33,20 @@ prompts.
 
 ## Implementation
 
-This application implemented with Vue 3, Typescript, Pinia, Vue Router and Vuetify framework.
+This application implemented with Vue 3, Typescript, Pinia, Vue Router and Vuetify framework. I also used Lodash and Chance libraries.
 
 - Pinia was chosen as it's the most powerful store for Vue.js for today for my opinion
 - There were 2 reasons for choosing Vuetify:
-  1. I was looking for readymade data table vue component which implements sort, filter and pagination (or infinte scroll).
+  1. I was looking for ready made data table vue component which implements sort, filter and pagination (or infinte scroll).
      I wanted this to be server-side ideally, because it's better for large datasets as it improve efficiency, reduce bandwidth, scale better, optimize database use, enhance security, and deliver a smoother user experience.
      Such component was found in vuetify library :) https://vuetifyjs.com/en/components/data-tables/server-side-tables
   2. Vuetify was mentioned as desirable skill for this role and I've never tried it out before so I was curious :)
+- Lodash-es is the ECMAScript module (ESM) version of Lodash. It's a great tool for operations with arrays like filter/sort etc which we needed here for implementation of fake api for server side data table
+- Chance is good library for generating random values, we needed it to create large fixture dataset.
 
 There are 2 users to login from different hospitals, each has different set of columns according to their hospoital:
 
 - Login: Maria, password: password1
 - Login: Maks, password: password2
+
+Table filter activates when any filter field loses focus.
