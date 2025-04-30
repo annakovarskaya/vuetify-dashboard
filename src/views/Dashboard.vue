@@ -177,12 +177,6 @@ const fakeAPISort = (
   return orderedItems;
 };
 
-// todo move it to types
-interface Filter {
-  name: string;
-  search: Ref<string>;
-}
-
 // refs
 const itemsPerPage = ref(ApplicationConstants.ProductsPerPage);
 const serverItems: Ref<Array<Product>> = ref([]);
