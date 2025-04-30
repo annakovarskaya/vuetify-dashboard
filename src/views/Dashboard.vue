@@ -96,7 +96,9 @@ const FakeAPI = {
 
 // i'm aware we need to call it from fakeAPI in ideal world
 // but there's specificity about data table server component which doesn't allow us to fake filtering properly
-// happy to talk about it deeper during discussion
+// there's also a bug which exists for same reason - if you set filter and then delete table shows all rows instead of first page
+// also some bug with Date filter, it doesn't work
+// happy to fix by additional request or talk about it deeper during discussion
 const fakeAPIFilter = () => {
   loading.value = true;
   console.log("we load items");
@@ -109,40 +111,23 @@ const fakeAPIFilter = () => {
   });
   console.log(filters.value);
   console.log(search);
-  serverItems.value = unref(products)
-    .slice()
-    .filter((item) => {
-      let result = true;
-      Object.keys(search).forEach((key) => {
-        const headerType = unref(columns).find((header) => header.key === key)
-          ?.headerProps?.type;
-        switch (headerType) {
-          case ColumnType.String:
-            if (search[key] && item[key] !== search[key]) {
-              result = false;
-              return;
-            }
-            break;
-          case ColumnType.Number:
-            if (search[key] && item[key] !== Number(search[key])) {
-              result = false;
-              return;
-            }
-            break;
-          // todo there's still some bug with Date filter, it doesn't work
-          // bur as i feel it's time to show at least initial version, happy to fix it by additional request
-          case ColumnType.Date:
-            console.log(new Date(search[key]));
-            if (search[key] && item[key] !== new Date(search[key])) {
-              result = false;
-              return;
-            }
-            break;
-        }
-      });
+  const filterObj = {};
+  serverItems.value = unref(products);
+  Object.keys(search).forEach((key) => {
+    const headerType = unref(columns).find((header) => header.key === key)
+      ?.headerProps?.type;
+    if (search[key]) {
+      const searchValue =
+        headerType === ColumnType.String
+          ? search[key]
+          : headerType === ColumnType.Number
+            ? Number(search[key])
+            : Date(search[key]);
 
-      return result;
-    });
+      filterObj[key] = searchValue;
+      serverItems.value = filter(unref(products), filterObj);
+    }
+  });
   loading.value = false;
 };
 
