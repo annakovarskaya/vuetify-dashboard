@@ -44,9 +44,12 @@ This application implemented with Vue 3, Typescript, Pinia, Vue Router and Vueti
 - Lodash-es is the ECMAScript module (ESM) version of Lodash. It's a great tool for operations with arrays like filter/sort etc which we needed here for implementation of fake api for server side data table
 - Chance is good library for generating random values, we needed it to create large fixture dataset.
 
+Login screen is completely tested with cypress. There is also list of cases for Dashboard screen.
+
 There are 2 users to login from different hospitals, each has different set of columns according to their hospoital:
 
 - Login: Maria, password: password1
 - Login: Maks, password: password2
 
 Table filter activates when any filter field loses focus.
+Columns are sortable by click on arrow icon for each column.

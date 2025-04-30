@@ -19,7 +19,7 @@
               Wrong credentials! Please try again.
             </v-card-text>
             <v-card-actions>
-              <v-spacer></v-spacer>
+              <v-spacer />
               <v-btn
                 @click="isShowAlert = false"
                 data-cy="error-dialog-close-button"
@@ -28,11 +28,7 @@
             </v-card-actions>
           </v-card>
         </v-dialog>
-        <v-img
-          class="mx-auto my-6"
-          max-width="228"
-          src="@/assets/logo.png"
-        ></v-img>
+        <v-img class="mx-auto my-6" max-width="228" src="@/assets/logo.png" />
         <v-card
           class="mx-auto pa-12 pb-8"
           elevation="8"
@@ -40,7 +36,6 @@
           rounded="lg"
         >
           <div class="text-subtitle-1 text-medium-emphasis">Name</div>
-
           <v-text-field
             density="compact"
             placeholder="Enter your name"
@@ -49,14 +44,12 @@
             v-model="login"
             data-cy="user-input"
             @keydown.enter="onTryToLogin"
-          ></v-text-field>
-
+          />
           <div
             class="text-subtitle-1 text-medium-emphasis d-flex align-center justify-space-between"
           >
             Password
           </div>
-
           <v-text-field
             :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'"
             :type="visible ? 'text' : 'password'"
@@ -70,7 +63,6 @@
             @click:append-inner="visible = !visible"
             @keydown.enter="onTryToLogin"
           />
-
           <v-btn
             class="mb-8"
             color="blue"
@@ -122,22 +114,18 @@ const onTryToLogin = () => {
   );
   isCredentialsCorrect.value = user !== undefined;
 
-  // todo move it when debug is done
-  isCredentialsCorrect.value = true;
   const isCredentialsCorrectValue = unref(isCredentialsCorrect);
   isShowAlert.value = !isCredentialsCorrectValue;
 
   if (isCredentialsCorrectValue) {
-    // todo uncomment when debug done
-    /*if (user === undefined) {
+    if (user === undefined) {
       throw new Error("User should be defined here");
-    }*/
+    }
 
     // in real world we can call api and get user products in response
     // here we call fixture function instead
-    // todo swap user2 to user when debug is done
-    const userInventory = createInventoryFixtureForUser(user2);
-    setUserHospital(user2.hospital);
+    const userInventory = createInventoryFixtureForUser(user);
+    setUserHospital(user.hospital);
     setUserProducts(userInventory);
     router.push({ name: RouteNames.Dashboard });
   }

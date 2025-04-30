@@ -37,7 +37,7 @@ export const createInventoryFixtureForUser = (user: User): Product[] => {
     userColumns.forEach((column: Column) => {
       let value: string = chance.word();
       // this data structure allows us to add new column types easily
-      switch (column.headerProps.type) {
+      switch (column.headerProps?.type) {
         case ColumnType.String:
           break;
         case ColumnType.Number:
