@@ -41,10 +41,10 @@ export const createInventoryFixtureForUser = (user: User): Product[] => {
         case ColumnType.String:
           break;
         case ColumnType.Number:
-          value = chance.integer({ min: 1, max: 20 });
+          value = chance.integer({ min: 1, max: 20 }).toString();
           break;
         case ColumnType.Date:
-          value = chance.date();
+          value = chance.date().toLocaleString();
           break;
         default:
           throw new Error("Unknown column type");

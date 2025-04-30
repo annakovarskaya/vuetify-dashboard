@@ -96,8 +96,7 @@ const FakeAPI = {
 
 // i'm aware we need to call it from fakeAPI in ideal world
 // but there's specificity about data table server component which doesn't allow us to fake filtering properly
-// there's also a bug which exists for same reason - if you set filter and then delete table shows all rows instead of first page
-// also some bug with Date filter, it doesn't work
+// there's also a "bug" which exists for same reason - if you set filter and then delete table shows all rows instead of first page
 // happy to fix by additional request or talk about it deeper during discussion
 const fakeAPIFilter = () => {
   loading.value = true;
@@ -117,14 +116,7 @@ const fakeAPIFilter = () => {
     const headerType = unref(columns).find((header) => header.key === key)
       ?.headerProps?.type;
     if (search[key]) {
-      const searchValue =
-        headerType === ColumnType.String
-          ? search[key]
-          : headerType === ColumnType.Number
-            ? Number(search[key])
-            : Date(search[key]);
-
-      filterObj[key] = searchValue;
+      filterObj[key] = search[key];
       serverItems.value = filter(unref(products), filterObj);
     }
   });
@@ -133,8 +125,8 @@ const fakeAPIFilter = () => {
 
 const fakeAPISort = (
   sortBy: SortItem[],
-  items: Array<Record<string, string | number | Date>>,
-): Array<Record<string, string | number | Date>> => {
+  items: Array<Record<string, string>>,
+): Array<Record<string, string>> => {
   const sortKey = sortBy[0].key;
   const sortOrder = sortBy[0].order;
   if (sortOrder === undefined) {
@@ -210,12 +202,11 @@ onBeforeMount(() => {
   console.log(filters.value);
 });
 
-const products: ComputedRef<Array<Record<string, string | number | Date>>> =
-  computed(() => {
-    return store.userProducts.map((product: Product) =>
-      Object.fromEntries(product),
-    );
-  });
+const products: ComputedRef<Array<Record<string, string>>> = computed(() => {
+  return store.userProducts.map((product: Product) =>
+    Object.fromEntries(product),
+  );
+});
 
 const userHospital: ComputedRef<Hospital> = computed(() => {
   if (store.userHospital === null) {
