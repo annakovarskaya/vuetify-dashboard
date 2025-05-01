@@ -3,7 +3,7 @@
     <v-row>
       <v-col class="justify-center align-center">
         <!--
-        Asked copilot's suggestions about colouring, wasn't sure what is more appropriate, i have to admit design is not my strongest skill 
+        Asked copilot's suggestions about colouring, wasn't sure what is more appropriate 
         -->
         <v-dialog
           v-model="isShowAlert"
